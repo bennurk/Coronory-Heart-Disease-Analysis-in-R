@@ -1,0 +1,48 @@
+---
+title: "Untitled"
+author: "Bennur Kaya"
+date: "25 Nisan 2018"
+output: word_document
+---
+```{r}
+install.packages("ggfortify")
+library(ggfortify)
+```
+
+
+```{r}
+fit <- lm(log(CHD) ~ LifeEx + Inactivity + ConsOfSugar + Obesity_Rate + Tobacco_Consumption + THE, data=ch)
+summary(fit)
+boxcox(fit) 
+```
+
+```{r}
+fit <- lm(CHD ~ LifeEx + Inactivity + ConsOfSugar + Obesity_Rate + Tobacco_Consumption + THE, data=ch)
+summary(fit)
+
+#Ho: All predictors have the same significance level
+#H1: At least one differs
+
+#There is more than one predictor variable which affects the number of death because of Coronary Heart Disease and these are life expectancy, inactivity, consumption Of sugar, obesity rate, tobacco consumption and health expenditure. As it can be seen from the multiple linear regression table, the coefficient for life expectancy isn't significantly different from zero. Except life expectancy, other coefficients are significantly different from zero at the p < .05 alpha level. In general, because p-value=3.894e-07<alpha value=0.05, we reject H0. Thus, at least one predictor differs.
+
+# CHD=176.9+-1.67*LifeExpectancy-0.9*Inactivity+ 1.29ConsOfSugar+2.37*ObesityRate+0.03*TobaccoCons-0.015*HealthExpenditure
+# When we increase Sugar Consumption one unit, the rate of death because of Coronary Heart Disease also increases 1.29 unit.
+
+shapiro.test(residuals(fit)) 
+#Ho: The multiple linear regression is normally distributed
+#H1: The multiple linear regression is not normally distributed
+
+# Since p-value = 0.001706 and it is less than alpha value (0.05), we reject Ho. The multiple linear regression is not normally distributed. So, we can not conduct a multiple linear regression. We can do some transformations.
+
+fit <- lm(log(CHD) ~ LifeEx + Inactivity + ConsOfSugar + Obesity_Rate + Tobacco_Consumption + THE, data=ch)
+summary(fit)
+boxcox(fit)
+
+#We did boxcox transformation to make the regression normal distributed. Although the multiple regression model approximated to normal'ty, it is still not normal distributed. Hence, we cannot conduct a multiple linear regression model for the data.
+
+autoplot(fit, which = 1:6, ncol = 3, label.size = 3)
+
+#By looking at the the normal qq plot gives information about the normality of residuals. It seems they do not follow normal distribution because of little S shape and they also have some outliers. When we look at the scale location plot of residuals, it is seen that there is no pattern, so the variance of residuals is constant. Moreover, Some observation numbers such as 36, 47 and 85 have the greatest influence on the regression.
+
+```
+
