@@ -1,0 +1,135 @@
+---
+title: "Project"
+date: "April 19, 2018"
+output: word_document
+---
+
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ch=na.omit(coronaryhd)
+numeric=ch[,sapply(ch,is.numeric)]
+cor(numeric)
+attach(ch)
+```
+
+
+```{r}
+#Q1
+#Ho= There is a relation between expenses for health of the continents and rate of disease.
+#H1= There is no relation between expenses for health of the continents and rate of disease.
+model=lm(CHD~THE)
+summary(model)
+
+# First, we wanted to check that if there is a relation between expenses for health of the continents and rate of disease. As we can see from the linear regression table, since p-value (0.002975) is less than alpha value (0.05), we reject Ho. That means there is no relation between expenses for health of the continents and rate of disease.
+
+
+ggplot(coronaryhd, aes(x=THE,y=CHD))+geom_point()+labs(title="Plot of Expenses for Health and Rate of CHD",x ="Expenses for Health", y = "CHD")
+#Secondly, scatter plot for THE and CHD
+
+ggplot(ch, aes(x=as.factor(Continent),y=THE))+geom_boxplot()+labs(title="Box Plot of Expenses for health",x ="Continents", y = "Expenses for Health")
+ggplot(ch, aes(x=as.factor(Continent),y=CHD))+geom_boxplot()+labs(title="Box Plot of CHD",x ="Continents", y = "CHD")
+
+a=tapply(ch$THE, ch$Continent, mean)
+b=tapply(ch$CHD, ch$Continent, mean)
+a
+b
+# For example, although Europe has a large health budget, it has also maximum number of people who die because of coronary heart disease, unlike Africa.
+```
+
+```{r}
+#Q2
+#Ho: M<=25 (The mean rate of sugar consumption is less than or equal to 25)
+#H1: M>25 (The mean rate of sugar consumption is greater than 25)
+x=mean(ch$ConsOfSugar)
+x
+m=25
+std=sd(ch$ConsOfSugar)
+std
+n=length(ch$ConsOfSugar)
+n
+
+ztest=function(x,m,std,n) {
+  zvalue=(x-m)/(std/sqrt(n))
+return(zvalue)
+}
+ztest(23.23404,25,11.61742,94)
+# z_calculated is -1.48 and our z-alpha(0.05) is -1.645. Since z-calculates is greate than z-alpha value, we fail to rejet Ho.
+
+ggplot(ch, aes(as.factor(0),y=ConsOfSugar))+geom_boxplot(fill="lavenderblush2",colour="lavenderblush4")+labs(title="Box Plot of Sugar Consumption",y="Sugar Consumption")
+
+#Before we explain our graph, we would like you to know that if the data follows left skewed distribution, then the mean of data is less than median. Now, as it is seen from box plot, the data is left skwed and the median is less than 25. So, we conclude that the mean value of sugar consumption is less than 25.
+```
+
+
+```{r}
+library(multcomp)
+```
+
+
+```{r}
+#Q3
+
+one=mean(ch$Obesity_Rate[ch$CHD_LEVEL=="Very Low"])
+one
+two=mean(ch$Obesity_Rate[ch$CHD_LEVEL=="Low"])
+two
+three=mean(ch$Obesity_Rate[ch$CHD_LEVEL=="High"])
+three
+four=mean(ch$Obesity_Rate[ch$CHD_LEVEL=="Very High"])
+four
+
+means=c(19.16,16.326,15.208,22.04)
+chd_levels=c("Very Low","Low","High","Very High")
+pie(means, labels=chd_levels, main="Pie Chart of CHD Levels according to Obesity Rate")
+
+#H0: Mlow=Mhigh (Average obesity rate for high disease level is equal to average obesity rate for low disease level)
+#H1: Mlow>Mhigh (Average obesity rate for high disease level is greater than for low disease level)
+
+xlow=16.326
+xhigh=15.208
+
+nlow=length(ch$Obesity_Rate[ch$CHD_LEVEL=="Low"])
+nlow
+nhigh=length(ch$Obesity_Rate[ch$CHD_LEVEL=="High"])
+nhigh
+
+sdlow=sd(ch$Obesity_Rate[ch$CHD_LEVEL=="Low"])
+sdhigh=sd(ch$Obesity_Rate[ch$CHD_LEVEL=="High"])
+sdlow
+sdhigh
+
+z_test=function(xlow,xhigh,sdlow,sdhigh,nlow,nhigh) {
+  zvalue=(xlow-xhigh-0)/(sdlow^2/sqrt(nlow)+sdhigh^2/sqrt(nhigh))
+  return(zvalue)
+}
+z_test(16.326, 15.208, 8.977, 9.776, 23, 24)
+
+#Since the calculated z value which is 0.0307 is smaller than z alpha(0.05) value, 1.645, we reject H0. That is, we have sufficient evidence to conclude that average obesity rate for high disease level is greater than for low disease level.
+```
+
+
+```{r}
+#Q4
+#H0: CHD rate does not changes depending on the continent
+#H1: CHD rate changes depending on the continent
+
+anovaCHD=aov(CHD~Continent, data=ch)
+summary(anovaCHD)
+
+#Since our p_value is less than alpha value, we reject Ho. Thus we have enough evidence to say that CHD rate changes depending on the continent. Now, we want to check which continents have significant difference between them.
+
+TukeyHSD(anovaCHD)
+
+#As it can be seen from the ANOVA table, both for Asia-Africa and Asia-America, there is significant difference in number of people who died because of the disease.
+
+ggplot(ch, aes(factor(Continent), CHD)) + 
+  geom_bar(stat="identity", position = "dodge", color="goldenrod2", fill="lightgoldenrod2") + 
+  scale_fill_brewer(palette = "Set1")
+
+# Moreover, as we can see from the bar plot, the rate of death changes according to the continents. Asia has the highest rate and Europe follows Asia.
+```
+
