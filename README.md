@@ -1,4 +1,4 @@
-# Coronory-Heart-Disease
+# Coronory Heart Disease Analysis
 
 ### Background and Description of the Problem
 
